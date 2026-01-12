@@ -1,0 +1,66 @@
+:root {
+    --background: #fff9f9;
+    --primary-color: #ff0000;
+}
+
+
+.work-sans-400 {
+    font-family: "Work Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+  }
+
+body {
+    font-family: 'work-sans-400', sans-serif;
+    background-color: var(--background);
+    color: var(--primary-color);
+    margin: 64px auto;
+    max-width: 960px;
+    text-align: center;
+}
+
+h1 {
+    margin: 0 0 48px 0;
+}
+
+span {
+    margin: 0 8px;
+}
+
+circle {
+    fill: var(--primary-color);
+    stroke: var(--background);
+    stroke-width: 3px;
+}
+
+line {
+    stroke-width:1px;
+    stroke-dasharray: 2 8;
+}
+
+path {
+    stroke: var(--primary-color);
+    stroke-width: 3px;
+}
+
+text.x-axis, text.y-axis {
+    font-size: 18px;
+    font-weight: bold;
+    fill: var(--primary-color);
+}
+
+g.city rect {
+
+    fill: var(--primary-color);
+}
+
+g.city text {
+    fill: var(--background);
+}
+
+@media (max-width: 1000px) {
+    body {
+        margin: 20px;
+    }
+}

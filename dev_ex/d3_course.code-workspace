@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../tableau_AAL_cleaning"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "d3_course"
+	}
+}
