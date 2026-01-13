@@ -1,5 +1,5 @@
 // Initial metric combinations and sort
-const metricPresets = {
+const metricPresets = [{
   'value-vs-growth': {
     name: 'Value vs. Growth',
     x: {
@@ -76,4 +76,4 @@ const metricPresets = {
   }
   
   // Need to add remaining presets after test...
-};
+}];
