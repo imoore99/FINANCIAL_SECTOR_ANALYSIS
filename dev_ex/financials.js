@@ -35,7 +35,9 @@ const axisYText = svg
     .attr("transform", "translate(40, 500) rotate(-90)")
 
 
-const placeCities = function() {
+
+
+const stockData = function() {
 
     // Identify select tag name
     let input = document.querySelector("select[name=metricPreset]")
@@ -43,8 +45,9 @@ const placeCities = function() {
     let valueSelect = input.value
 
     console.log("Value Selected:", valueSelect)
+    console.log("mm", metricPresets[0][valueSelect])
     // Filter metric presets for values
-    const metricSelect = Object.values(metricPresets[0])[0]
+    const metricSelect = metricPresets[0][valueSelect]  
     console.log("Metric Presets:", metricSelect)
     
     //Identify and extract metric names
@@ -55,24 +58,103 @@ const placeCities = function() {
     console.log("selects:", inputFieldX, inputFieldY, inputFieldR)
 
     //Identify and extract metric chart labels
+    const inputLabelX = metricSelect.x.label
+    const inputLabelY = metricSelect.y.label
+    const inputLabelR = metricSelect.r.label
 
-    
+    console.log("selects:", inputLabelX, inputLabelY, inputLabelR)
+
+
+    // here is the place we update things
+    let valueX = inputFieldX
+    let valueY = inputFieldY
+    let valueR = inputFieldR
+
+    let textX = inputLabelX
+    let textY = inputLabelY
+
+    axisXText.text(textX)
+    axisYText.text(textY)
+
+
+    //max values for scales
+    let maxValueX = d3.max(stock_data, (d, i) => {return d[valueX]})
+    let maxValueY = d3.max(stock_data, (d, i) => {return d[valueY]})
+    let maxValueR = d3.max(stock_data, (d, i) => {return d[valueR]})
+
+    // create scales based on select box values
+    const scaleX = d3.scaleLinear()
+        .domain([0, maxValueX*1.1])
+        .range([100, 860])
+    const scaleY = d3.scaleLinear()
+        .domain([0, maxValueY*1.1])
+        .range([620, 100])
+    const scaleR = d3.scaleSqrt()
+        .domain([(maxValueR*0.7), maxValueR])
+        .range([0, 30])
+
+    // create and call axes based on select box values
+    const axisX = d3.axisBottom(scaleX)
+        .tickSizeInner(-520)
+        .tickSizeOuter(0)
+        .tickPadding(10)
+        .ticks(10, "$,f")
+    axisXGroup.call(axisX)
+
+    const axisY = d3.axisLeft(scaleY)
+        .tickSizeInner(-760)
+        .tickSizeOuter(0)
+        .tickPadding(10)
+        .ticks(10, "$,f")
+    axisYGroup.call(axisY)
+
     //Connect inputs to actual values from stock_data
+    const stocks = svg
+        .selectAll("g.stocks")
+        .data(stock_data, (d, i) => {return d.ticker})
+        .enter()  // On load
+        .append("g")
+        .attr("class", "stocks")
+        .attr("transform", (d, i) => {
+            const x = scaleX(d[valueX])
+            console.log("X:", x)
+            const y = scaleY(d[valueY])
+            console.log("Y:", y)
+            return `translate(${x}, ${y})`
+        })
 
+    stocks
+        .append("circle")
+        .attr("cx", 0)
+        .attr("cy", 0)
+        .attr("r", 0)
+        .transition()
+        .duration(500)
+        .attr("r", (d, i) => {return scaleR(d[valueR])})
     
+    svg
+        .selectAll("g.stocks")
+        .transition()
+        .duration(500)
+        .attr("transform", (d, i) => {
+            const x = scaleX(d[valueX])
+            console.log("X:", x)
+            const y = scaleY(d[valueY])
+            console.log("Y:", y)
+            return `translate(${x}, ${y})`
+        })
 
 
-    
 }
 
 //on page load
-placeCities()
+stockData()
 
 //on any select box
 const selectTags = document.querySelectorAll("select")
 selectTags.forEach(selectTag => {
     selectTag.addEventListener("change", function () {
-        placeCities()
+        stockData()
     });
 })
 
@@ -90,21 +172,6 @@ selectTags.forEach(selectTag => {
 //     axisXText.text(textX)
 //     axisYText.text(textY)
 
-//     //max values for scales
-//     let maxValueX = d3.max(data, (d, i) => {return d[valueX]})
-//     let maxValueY = d3.max(data, (d, i) => {return d[valueY]})
-//     let maxValueR = d3.max(data, (d, i) => {return d.population})
-
-//     // create scales based on select box values
-//     const scaleX = d3.scaleLinear()
-//         .domain([0, maxValueX])
-//         .range([100, 860])
-//     const scaleY = d3.scaleLinear()
-//         .domain([0, maxValueY])
-//         .range([620, 100])
-//     const scaleR = d3.scaleSqrt()
-//         .domain([0, maxValueR])
-//         .range([0, 30])
 
 //     // create and call axes based on select box values
 //     const axisX = d3.axisBottom(scaleX)

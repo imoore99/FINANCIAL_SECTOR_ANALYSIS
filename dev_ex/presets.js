@@ -8,12 +8,12 @@ const metricPresets = [{
       format: d => d.toFixed(1)
     },
     y: {
-      field: 'revenue_growth',
+      field: 'rev_growth',
       label: 'Revenue Growth (%)',
       format: d => d.toFixed(1) + '%'
     },
     r: {
-      field: 'marketCap',
+      field: 'market_cap',
       label: 'Market Cap',
       scale: d3.scaleSqrt().range([5, 50]), // Bubble size range
       format: d => `$${(d / 1e12).toFixed(2)}T`
@@ -38,7 +38,7 @@ const metricPresets = [{
       format: d => d.toFixed(1) + '%'
     },
     r: {
-      field: 'marketCap',
+      field: 'market_cap',
       label: 'Market Cap',
       scale: d3.scaleSqrt().range([5, 50]),
       format: d => `$${(d / 1e12).toFixed(2)}T`
@@ -63,7 +63,7 @@ const metricPresets = [{
       format: d => d.toFixed(1) + '%'
     },
     r: {
-      field: 'marketCap',
+      field: 'market_cap',
       label: 'Market Cap',
       scale: d3.scaleSqrt().range([5, 50]),
       format: d => `$${(d / 1e12).toFixed(2)}T`
