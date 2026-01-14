@@ -26,13 +26,13 @@ const axisYGroup = svg
 const axisXText = svg
     .append("text")
     .attr("class", "x-axis")
-    .attr("transform", "translate(420, 670)")
+    .attr("transform", "translate(450, 670)")
 
     
 const axisYText = svg
     .append("text")
     .attr("class", "y-axis")
-    .attr("transform", "translate(40, 500) rotate(-90)")
+    .attr("transform", "translate(40, 450) rotate(-90)")
 
 
 
@@ -130,7 +130,10 @@ const stockData = function() {
         .attr("r", 0)
         .transition()
         .duration(500)
+        .attr("stroke", (d, i) => {return sectorColors[d.sector]})
+        .attr("stroke-width", 3)
         .attr("r", (d, i) => {return scaleR(d[valueR])})
+        
     
     svg
         .selectAll("g.stocks")
@@ -143,6 +146,8 @@ const stockData = function() {
             console.log("Y:", y)
             return `translate(${x}, ${y})`
         })
+
+   
 
 
 }
@@ -157,6 +162,8 @@ selectTags.forEach(selectTag => {
         stockData()
     });
 })
+
+console.log(sectorColors['Technology'])
 
 
 // let inputX = document.querySelector("select[name=valueX]")

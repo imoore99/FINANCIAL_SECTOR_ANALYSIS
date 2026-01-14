@@ -1,3 +1,14 @@
+const sectorColors = {
+  'Technology': '#002f61',              // Your highlight - deep navy
+  'Communication Services': '#0066cc',  // Bright blue
+  'Financial Services': '#2d5f3f',      // Forest green
+  'Healthcare': '#8b1538',              // Deep red/burgundy
+  'Consumer Cyclical': '#d97706',       // Amber/orange
+  'Consumer Defensive': '#7c3aed',      // Purple
+  'Energy': '#059669'                   // Emerald green
+};
+
+
 // Initial metric combinations and sort
 const metricPresets = [{
   'value-vs-growth': {

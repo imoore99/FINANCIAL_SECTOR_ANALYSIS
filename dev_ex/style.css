@@ -1,5 +1,5 @@
 :root {
-    --background: rgb(240, 246, 255, 0.5);
+    --background: #f0f6ff80;
     --primary-color: #002f61;
     --stroke: #ffffff;
 }
@@ -16,23 +16,41 @@ body {
     font-family: 'work-sans-400', sans-serif;
     background-color: var(--background);
     color: var(--primary-color);
-    margin: 64px auto;
+    margin: 32px auto;
     max-width: 960px;
     text-align: center;
 }
 
 h1 {
-    margin: 0 0 48px 0;
+    margin: 0 0 32px 0;
+}
+
+img {
+    max-width:30%;
 }
 
 span {
     margin: 0 8px;
 }
+.preset-selector {
+    font-family: "Work Sans", sans-serif;
+    /* Basic styling */
+    background-color: var(--background);
+    color: var(--primary-color);
+    padding: 2px 4px;
+    font-size: 16px;
+    font-weight: 600;
+    border: 3px solid var(--primary-color);
+    border-radius: 0px;
+    cursor: pointer;
+  
+}
+
 
 circle {
     fill: var(--stroke);
-    stroke: var(--primary-color);
-    stroke-width: 2px;
+    /* stroke: var(--primary-color); */
+    /* stroke-width: 2px; */
 }
 
 line {
