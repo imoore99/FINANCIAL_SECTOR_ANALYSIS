@@ -1,6 +1,7 @@
 :root {
-    --background: #fff9f9;
-    --primary-color: #ff0000;
+    --background: rgb(240, 246, 255, 0.5);
+    --primary-color: #002f61;
+    --stroke: #ffffff;
 }
 
 
@@ -29,9 +30,9 @@ span {
 }
 
 circle {
-    fill: var(--primary-color);
-    stroke: var(--background);
-    stroke-width: 3px;
+    fill: var(--stroke);
+    stroke: var(--primary-color);
+    stroke-width: 2px;
 }
 
 line {
