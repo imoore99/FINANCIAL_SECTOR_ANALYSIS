@@ -64,6 +64,10 @@ const stockData = function() {
 
     console.log("selects:", inputLabelX, inputLabelY, inputLabelR)
 
+    const axisFormatX = metricSelect.x.format
+    const axisFormatY = metricSelect.y.format
+    const axisFormatR = metricSelect.r.format
+    console.log("formats:", axisFormatX, axisFormatY, axisFormatR)
 
     // here is the place we update things
     let valueX = inputFieldX
@@ -98,14 +102,16 @@ const stockData = function() {
         .tickSizeInner(-520)
         .tickSizeOuter(0)
         .tickPadding(10)
-        .ticks(10, "$,f")
+        .ticks(10)
+        .tickFormat(axisFormatX)
     axisXGroup.call(axisX)
 
     const axisY = d3.axisLeft(scaleY)
         .tickSizeInner(-760)
         .tickSizeOuter(0)
         .tickPadding(10)
-        .ticks(10, "$,f")
+        .ticks(10)
+        .tickFormat(axisFormatY)
     axisYGroup.call(axisY)
 
     //Connect inputs to actual values from stock_data
