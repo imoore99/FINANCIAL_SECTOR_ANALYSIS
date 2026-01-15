@@ -32,7 +32,7 @@ const axisXText = svg
 const axisYText = svg
     .append("text")
     .attr("class", "y-axis")
-    .attr("transform", "translate(40, 450) rotate(-90)")
+    .attr("transform", "translate(30, 450) rotate(-90)")
 
 
 
@@ -80,21 +80,30 @@ const stockData = function() {
     axisXText.text(textX)
     axisYText.text(textY)
 
+    const selectDescription = document.querySelector("#presetDescription" )
+    console.log("description:", metricSelect.description)
+    selectDescription.innerHTML = metricSelect.description
+
 
     //max values for scales
     let maxValueX = d3.max(stock_data, (d, i) => {return d[valueX]})
     let maxValueY = d3.max(stock_data, (d, i) => {return d[valueY]})
     let maxValueR = d3.max(stock_data, (d, i) => {return d[valueR]})
 
+    //max values for scales
+    let minValueX = d3.min(stock_data, (d, i) => {return d[valueX]})
+    let minValueY = d3.min(stock_data, (d, i) => {return d[valueY]})
+    let minValueR = d3.min(stock_data, (d, i) => {return d[valueR]})
+
     // create scales based on select box values
     const scaleX = d3.scaleLinear()
-        .domain([0, maxValueX*1.1])
+        .domain([minValueX*0.8, maxValueX*1.1])
         .range([100, 860])
     const scaleY = d3.scaleLinear()
-        .domain([0, maxValueY*1.1])
+        .domain([minValueY*0.8, maxValueY*1.1])
         .range([620, 100])
     const scaleR = d3.scaleSqrt()
-        .domain([(maxValueR*0.7), maxValueR])
+        .domain([minValueR*0.8, maxValueR*1.1])
         .range([0, 30])
 
     // create and call axes based on select box values
@@ -105,6 +114,7 @@ const stockData = function() {
         .ticks(10)
         .tickFormat(axisFormatX)
     axisXGroup.call(axisX)
+    axisXGroup.selectAll(".tick text").style("font-size", "14px")
 
     const axisY = d3.axisLeft(scaleY)
         .tickSizeInner(-760)
@@ -113,6 +123,7 @@ const stockData = function() {
         .ticks(10)
         .tickFormat(axisFormatY)
     axisYGroup.call(axisY)
+    axisYGroup.selectAll(".tick text").style("font-size", "14px")
 
     //Connect inputs to actual values from stock_data
     const stocks = svg
@@ -129,6 +140,7 @@ const stockData = function() {
             return `translate(${x}, ${y})`
         })
 
+
     stocks
         .append("circle")
         .attr("cx", 0)
@@ -137,10 +149,80 @@ const stockData = function() {
         .transition()
         .duration(500)
         .attr("stroke", (d, i) => {return sectorColors[d.sector]})
-        .attr("stroke-width", 3)
+        .attr("stroke-width", 5)
         .attr("r", (d, i) => {return scaleR(d[valueR])})
-        
     
+    // Hover state data
+    stocks
+        .append("rect")
+        .attr("x", -90)
+        .attr("y", (d, i) => {return -1 * scaleR(d[valueR]) - 65})
+        .attr("width", 180)
+        .attr("height", 60)
+        .attr("fill", (d, i) => {return sectorColors[d.sector]})
+        .attr("opacity", 0)
+
+    stocks
+        .append("text")
+        .attr("x", 0)
+        .attr("y", (d, i) => {return -1 * scaleR(d[valueR]) - 52})
+        .attr("text-anchor", "middle")
+        .text((d, i) => {return d.ticker})
+        .attr("fill", "var(--background)")
+        .attr("font-size", "12px")
+        .attr("font-weight", "bold")
+        .attr("opacity", 0)
+
+    stocks
+        .append("text")
+        .attr("x", 0)
+        .attr("y", (d, i) => {return -1 * scaleR(d[valueR]) - 38})
+        .attr("text-anchor", "middle")
+        .text((d, i) => {return `${inputLabelX}: ${axisFormatX(d[valueX])}`})
+        .attr("fill", "var(--background)")  
+        .attr("font-size", "12px")
+        .attr("opacity", 0)
+        
+
+    stocks
+        .append("text")
+        .attr("x", 0)
+        .attr("y", (d, i) => {return -1 * scaleR(d[valueR]) - 24})
+        .attr("text-anchor", "middle")
+        .text((d, i) => {return `${inputLabelY}: ${axisFormatX(d[valueY])}`})
+        .attr("fill", "var(--background)")  
+        .attr("font-size", "12px")
+        .attr("opacity", 0)
+
+    stocks
+        .append("text")
+        .attr("x", 0)
+        .attr("y", (d, i) => {return -1 * scaleR(d[valueR]) - 10})
+        .attr("text-anchor", "middle")
+        .text((d, i) => {return `${inputLabelR}:$ ${axisFormatX(d[valueR]/1000000000000) }T`})
+        .attr("fill", "var(--background)")  
+        .attr("font-size", "12px")
+        .attr("opacity", 0)
+
+
+
+    svg.selectAll("g.stocks")
+        .each(function(d) {
+            const group = d3.select(this);
+            const texts = group.selectAll("text").nodes();
+            
+            // Update second text (X metric)
+            d3.select(texts[1])
+                .text(`${inputLabelX}: ${axisFormatX(d[valueX])}`);
+            
+            // Update third text (Y metric)  
+            d3.select(texts[2])
+                .text(`${inputLabelY}: ${axisFormatY(d[valueY])}`);
+            
+            // Update fourth text (R metric)
+            d3.select(texts[3])
+                .text(`${inputLabelR}: ${axisFormatR(d[valueR])}`);
+        });
     svg
         .selectAll("g.stocks")
         .transition()
@@ -152,7 +234,6 @@ const stockData = function() {
             console.log("Y:", y)
             return `translate(${x}, ${y})`
         })
-
    
 
 
@@ -169,7 +250,7 @@ selectTags.forEach(selectTag => {
     });
 })
 
-console.log(sectorColors['Technology'])
+
 
 
 // let inputX = document.querySelector("select[name=valueX]")

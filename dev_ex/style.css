@@ -26,12 +26,13 @@ h1 {
 }
 
 img {
-    max-width:30%;
+    max-width:50%;
 }
 
 span {
     margin: 0 8px;
 }
+
 .preset-selector {
     font-family: "Work Sans", sans-serif;
     /* Basic styling */
@@ -46,6 +47,24 @@ span {
   
 }
 
+p.description {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--primary-color);
+    max-width: 720px;
+    margin: 32px auto;
+    line-height: 1.5;
+    text-align: left;
+
+    transition: 0.5s ease-in-out;
+}
+
+svg {
+    margin: -68px auto 0 auto;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
 
 circle {
     fill: var(--stroke);
@@ -54,7 +73,7 @@ circle {
 }
 
 line {
-    stroke-width:1px;
+    stroke-width: 1px;
     stroke-dasharray: 2 8;
 }
 
@@ -69,17 +88,26 @@ text.x-axis, text.y-axis {
     fill: var(--primary-color);
 }
 
-g.city rect {
-
-    fill: var(--primary-color);
+g.stocks circle {
+    cursor: pointer;
 }
-
-g.city text {
-    fill: var(--background);
+g.stocks:hover rect, g.stocks:hover text {
+    opacity: 1;
+    cursor: pointer;
 }
 
 @media (max-width: 1000px) {
     body {
         margin: 20px;
+    }
+    .preset-selector {
+        font-size: 12px;
+    }
+    p.description {
+        font-size: 12px;
+        max-width: 70%;
+    }
+    img {
+        max-width: 70%;
     }
 }
