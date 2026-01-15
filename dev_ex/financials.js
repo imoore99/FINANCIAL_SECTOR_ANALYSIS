@@ -95,12 +95,20 @@ const stockData = function() {
     let minValueY = d3.min(stock_data, (d, i) => {return d[valueY]})
     let minValueR = d3.min(stock_data, (d, i) => {return d[valueR]})
 
+    
+
     // create scales based on select box values
     const scaleX = d3.scaleLinear()
-        .domain([minValueX*0.8, maxValueX*1.1])
+        .domain([
+                minValueX < 0 ? minValueX*1.1 : minValueX*0.8,
+                maxValueX < 0 ? maxValueX*0.8 : maxValueX*1.1
+        ])
         .range([100, 860])
     const scaleY = d3.scaleLinear()
-        .domain([minValueY*0.8, maxValueY*1.1])
+        .domain([
+                minValueY < 0 ? minValueY*1.1 : minValueY*0.8,
+                maxValueY < 0 ? maxValueY*0.8 : maxValueY*1.1
+        ])
         .range([620, 100])
     const scaleR = d3.scaleSqrt()
         .domain([minValueR*0.8, maxValueR*1.1])
