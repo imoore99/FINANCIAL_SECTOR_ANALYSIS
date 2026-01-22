@@ -59,7 +59,7 @@ p.description {
     transition: 0.5s ease-in-out;
 }
 
-svg {
+svg.chart {
     margin: -68px auto 0 auto;
     width: 100%;
     height: auto;
@@ -94,6 +94,15 @@ g.stocks circle {
 g.stocks:hover rect, g.stocks:hover text {
     opacity: 1;
     cursor: pointer;
+}
+
+rect {
+    fill: var(--primary-orange);
+    transition: fill 0.5s;
+}
+
+rect.transparent {
+    opacity: 0;
 }
 
 @media (max-width: 1000px) {

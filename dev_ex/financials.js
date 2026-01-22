@@ -3,7 +3,7 @@
 // 2. on on any select box
 // all of them will run the same code
 
-const svg = d3.select("svg")
+const svg = d3.select("svg.chart")
 
 svg
     .attr("viewBox", "0 0 960 720")
@@ -35,9 +35,8 @@ const axisYText = svg
     .attr("transform", "translate(30, 450) rotate(-90)")
 
 
-
-
 const stockData = function() {
+    console.log("Running stock data function")
 
     // Identify select tag name
     let input = document.querySelector("select[name=metricPreset]")
@@ -247,6 +246,59 @@ const stockData = function() {
 
 }
 
+// Bar Chart for Market Cap Visualization
+const marketCapSvg = d3.select("svg.market-cap")
+    .attr("viewBox", "0 0 960 200")
+
+var minRange = 0 //defines start range for scaling
+var maxRange = 112 //defines end range for scaling
+var textStart = 130 //defines y position for bars
+var textLabel = textStart+20 //hour label positioning
+var textMarketCap = textStart-10 //data labels positioning
+
+const barScale = d3.scaleLinear()
+    .domain([0, 6000000000000])
+    .range([minRange, maxRange])
+
+const marketCapFormat = d3.format(".2s")
+
+const marketCapGroups = marketCapSvg
+    .selectAll("g")
+    .data(stock_data.sort((a, b) => b.market_cap - a.market_cap))
+    .enter().append("g")
+    .attr("transform", (d, i) => {return "translate(" + (i*36) +", 0)"})
+
+marketCapGroups
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", 24)
+    .attr("height", textLabel)
+    .attr("class", "transparent")
+
+marketCapGroups
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", (d, i) => {return textStart})
+    .attr("width", 24)
+    .attr("height", 0).transition().duration(500).delay((d,i) => {return i * 20}).ease(d3.easeCubicOut)
+    .attr("y", (d, i) => {return textStart-barScale(d.market_cap)})
+    .attr("height", (d, i) => {return barScale(d.market_cap)})
+
+// marketCapGroups
+//     .append("text")
+//     .attr("x", 12)
+//     .attr("y", textLabel)
+//     .attr("class", "labels")
+//     .text((d,i) => {return marketCapFormat(d.ticker)})
+
+// marketCapGroups
+//     .append("text")
+//     .attr("x", 12)
+//     .attr("y", (d,i) => {return textMarketCap-barScale(d.market_cap)})
+//     .attr("class", "marketcap")
+//     .text((d,i) => {return d.market_cap})
+
 //on page load
 stockData()
 
@@ -255,116 +307,58 @@ const selectTags = document.querySelectorAll("select")
 selectTags.forEach(selectTag => {
     selectTag.addEventListener("change", function () {
         stockData()
+        console.log("Selection changed, data updated.")
     });
 })
 
 
+// const todaySvg = d3.select("svg.today")
 
+// var minRange = 1 //defines start range for scaling
+// var maxRange = 112 //defines end range for scaling
+// var textStart = 130 //defines y position for bars
+// var textHour = textStart+20 //hour label positioning
+// var textSteps = textStart-10 //data labels positioning
 
-// let inputX = document.querySelector("select[name=valueX]")
-//     let inputY = document.querySelector("select[name=valueY]")
+// const barScale = d3.scaleLinear()
+//     .domain([0, 2000])
+//     .range([minRange, maxRange])
 
-//     // here is the place we update things
-//     let valueX = inputX.value
-//     let valueY = inputY.value
+// const hourFormat = d3.format("02d")
 
-//     let textX = inputX.options[inputX.selectedIndex].innerHTML
-//     let textY = inputY.options[inputY.selectedIndex].innerHTML
+// const todayGroups = todaySvg
+//     .selectAll("g")
+//     .data(todayData)
+//     .enter().append("g")
+//     .attr("transform", (d, i) => {return "translate(" + (i*36) +", 0)"})
 
-//     axisXText.text(textX)
-//     axisYText.text(textY)
+// todayGroups
+//     .append("rect")
+//     .attr("x", 0)
+//     .attr("y", 0)
+//     .attr("width", 24)
+//     .attr("height", textHour)
+//     .attr("class", "transparent")
 
+// todayGroups
+//     .append("rect")
+//     .attr("x", 0)
+//     .attr("y", (d, i) => {return textStart})
+//     .attr("width", 24)
+//     .attr("height", 0).transition().duration(500).delay((d,i) => {return i * 20}).ease(d3.easeCubicOut)
+//     .attr("y", (d, i) => {return textStart-barScale(d)})
+//     .attr("height", (d, i) => {return barScale(d)})
 
-//     // create and call axes based on select box values
-//     const axisX = d3.axisBottom(scaleX)
-//         .tickSizeInner(-520)
-//         .tickSizeOuter(0)
-//         .tickPadding(10)
-//         .ticks(10, "$,f")
-//     axisXGroup.call(axisX)
+// todayGroups
+//     .append("text")
+//     .attr("x", 12)
+//     .attr("y", textHour)
+//     .attr("class", "hours")
+//     .text((d,i) => {return hourFormat(i)})
 
-//     const axisY = d3.axisLeft(scaleY)
-//         .tickSizeInner(-760)
-//         .tickSizeOuter(0)
-//         .tickPadding(10)
-//         .ticks(10, "$,f")
-//     axisYGroup.call(axisY)
-
-
-
-//     const cities = svg
-//         .selectAll("g.city")
-//         .data(data, (d, i) => {return d.city})
-//         .enter()  // On load
-//         .append("g")
-//         .attr("class", "city")
-//         .attr("transform", (d, i) => {
-//             const x = scaleX(d[valueX])
-//             const y = scaleY(d[valueY])
-//             return `translate(${x}, ${y})`
-//         })
-        
-//     cities
-//         .append("circle")
-//         .attr("cx", 0)
-//         .attr("cy", 0)
-//         .attr("r", 0)
-//         .transition()
-//         .duration(500)
-//         .attr("r", (d, i) => {return scaleR(d.population)})
-
-//     cities 
-//         .append("rect")
-//         .attr("x", -60)
-//         .attr("y", (d, i) => {return -1 * scaleR(d.population) - 35})
-//         .attr("width", 120)
-//         .attr("height", 30)
-//         .attr("opacity", 0)
-
-//     cities
-//         .append("text")
-//         .attr("x", 0)
-//         .attr("y", (d, i) => {return -1 * scaleR(d.population) - 15})
-//         .attr("text-anchor", "middle")
-//         .text((d, i) => {return d.city})
-//         .attr("opacity", 0)
-        
-
-//     svg
-//         .selectAll("g.city")
-//         .transition()
-//         .duration(500)
-//         .attr("transform", (d, i) => {
-//             const x = scaleX(d[valueX])
-//             const y = scaleY(d[valueY])
-//             return `translate(${x}, ${y})`
-//         })
-
-//     svg
-//         .selectAll("g.city")
-//         .on("mouseover", function () {
-//             d3.select(this).raise()
-//                 .select("rect")
-//                 .attr("fill", "white")
-//                 .transition()
-//                 .duration(250)
-//                 .attr("opacity", 1)
-//             d3.select(this)
-//                 .select("text")
-//                 .transition()
-//                 .duration(250)
-//                .attr("opacity", 1)
-//         })
-//         .on("mouseout", function () {
-//             d3.select(this)
-//                 .select("rect")
-//                 .attr("fill", "var(--primary-color)")
-//                 .transition()
-//                 .duration(250)
-//                 .attr("opacity", 0)
-//             d3.select(this)
-//                 .select("text")
-//                 .transition()
-//                 .duration(250)
-//                 .attr("opacity", 0)
-//         })
+// todayGroups
+//     .append("text")
+//     .attr("x", 12)
+//     .attr("y", (d,i) => {return textSteps-barScale(d)})
+//     .attr("class", "steps")
+//     .text((d,i) => {return d})
