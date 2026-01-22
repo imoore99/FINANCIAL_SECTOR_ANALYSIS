@@ -51,25 +51,17 @@ p.description {
     font-size: 18px;
     font-weight: bold;
     color: var(--primary-color);
-    max-width: 720px;
-    margin: 32px auto;
+    max-width: 860px;
+    margin: 32px auto 12px auto;
     line-height: 1.5;
     text-align: left;
-
-    transition: 0.5s ease-in-out;
 }
 
 svg.chart {
-    margin: -68px auto 0 auto;
+    margin: -90px auto 0 auto;
     width: 100%;
     height: auto;
     overflow: visible;
-}
-
-circle {
-    fill: var(--stroke);
-    /* stroke: var(--primary-color); */
-    /* stroke-width: 2px; */
 }
 
 line {
@@ -88,22 +80,51 @@ text.x-axis, text.y-axis {
     fill: var(--primary-color);
 }
 
-g.stocks circle {
-    cursor: pointer;
+rect.bars {
+    fill: var(--primary-color);
 }
-g.stocks:hover rect, g.stocks:hover text {
+
+text.labels {
+    font-size: 14px;
+    fill: var(--primary-color);
+    font-weight: bold;
+}
+
+text.marketcap {
+    font-size: 12px;
+    fill: var(--primary-color);
+    font-weight: bold;
+}
+
+
+/* circle / Hover effects */
+circle {
+    fill: var(--stroke);
+    opacity: 0.6;
+}
+
+g.stocks circle:hover {
     opacity: 1;
     cursor: pointer;
+    transition: opacity ease-in-out 0.5s;
 }
 
-rect {
-    fill: var(--primary-orange);
-    transition: fill 0.5s;
+g.stocks text.legend-ticker:hover {
+    font-weight: bold;
+    cursor: pointer;
+    transition: font-weight ease-in-out 0.5s;
 }
 
-rect.transparent {
-    opacity: 0;
+div.market-cap-legend {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
 }
+
+
+
 
 @media (max-width: 1000px) {
     body {

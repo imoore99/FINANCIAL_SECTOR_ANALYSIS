@@ -34,6 +34,10 @@ const axisYText = svg
     .attr("class", "y-axis")
     .attr("transform", "translate(30, 450) rotate(-90)")
 
+const legendSvg = d3.select("svg.legend")
+    .attr("viewBox", "0 0 960 40")
+    .attr("width", 960)
+    .attr("height", 40)
 
 const stockData = function() {
     console.log("Running stock data function")
@@ -147,7 +151,6 @@ const stockData = function() {
             return `translate(${x}, ${y})`
         })
 
-
     stocks
         .append("circle")
         .attr("cx", 0)
@@ -158,60 +161,6 @@ const stockData = function() {
         .attr("stroke", (d, i) => {return sectorColors[d.sector]})
         .attr("stroke-width", 5)
         .attr("r", (d, i) => {return scaleR(d[valueR])})
-    
-    // Hover state data
-    stocks
-        .append("rect")
-        .attr("x", -90)
-        .attr("y", (d, i) => {return -1 * scaleR(d[valueR]) - 65})
-        .attr("width", 180)
-        .attr("height", 60)
-        .attr("fill", (d, i) => {return sectorColors[d.sector]})
-        .attr("opacity", 0)
-
-    stocks
-        .append("text")
-        .attr("x", 0)
-        .attr("y", (d, i) => {return -1 * scaleR(d[valueR]) - 52})
-        .attr("text-anchor", "middle")
-        .text((d, i) => {return d.ticker})
-        .attr("fill", "var(--background)")
-        .attr("font-size", "12px")
-        .attr("font-weight", "bold")
-        .attr("opacity", 0)
-
-    stocks
-        .append("text")
-        .attr("x", 0)
-        .attr("y", (d, i) => {return -1 * scaleR(d[valueR]) - 38})
-        .attr("text-anchor", "middle")
-        .text((d, i) => {return `${inputLabelX}: ${axisFormatX(d[valueX])}`})
-        .attr("fill", "var(--background)")  
-        .attr("font-size", "12px")
-        .attr("opacity", 0)
-        
-
-    stocks
-        .append("text")
-        .attr("x", 0)
-        .attr("y", (d, i) => {return -1 * scaleR(d[valueR]) - 24})
-        .attr("text-anchor", "middle")
-        .text((d, i) => {return `${inputLabelY}: ${axisFormatX(d[valueY])}`})
-        .attr("fill", "var(--background)")  
-        .attr("font-size", "12px")
-        .attr("opacity", 0)
-
-    stocks
-        .append("text")
-        .attr("x", 0)
-        .attr("y", (d, i) => {return -1 * scaleR(d[valueR]) - 10})
-        .attr("text-anchor", "middle")
-        .text((d, i) => {return `${inputLabelR}:$ ${axisFormatX(d[valueR]/1000000000000) }T`})
-        .attr("fill", "var(--background)")  
-        .attr("font-size", "12px")
-        .attr("opacity", 0)
-
-
 
     svg.selectAll("g.stocks")
         .each(function(d) {
@@ -241,14 +190,97 @@ const stockData = function() {
             console.log("Y:", y)
             return `translate(${x}, ${y})`
         })
-   
 
+    // Add hover listeners for legend display
+    svg.selectAll("g.stocks")
+        .on("mouseenter", function(event) {
+            const d = d3.select(this).datum()
+            console.log("Hovering over:", d.ticker)
 
+            // Build legend items (flex-like spacing)
+            const items = [
+                `Stock: ${d.ticker} `, '|',
+                `Sector: ${d.sector} `,'|',
+                `${inputLabelX}: ${axisFormatX(d[valueX])} `, '|',
+                `${inputLabelY}: ${axisFormatY(d[valueY])} `, '|',
+                `${inputLabelR}: ${axisFormatR(d[valueR])}`
+            ]
+
+            const w = parseFloat(legendSvg.attr('width')) || (legendSvg.node()?.getBoundingClientRect().width || 960)
+            const band = d3.scaleBand()
+                .domain(d3.range(items.length))
+                .range([0, w])
+                .padding(0.2)
+
+            const legendTexts = legendSvg
+                .selectAll('text.legend-item')
+                .data(items)
+
+            legendTexts.join(
+                enter => {
+                    const enterSel = enter.append('text')
+                        .attr('class', 'legend-item')
+                        .attr('y', 24)
+                        .attr('text-anchor', 'middle')
+                        .attr('font-weight', 'bold')
+                        .attr('font-size', '14px')
+                        .attr('x', (t, i) => band(i) + band.bandwidth() / 2)
+                        .style('opacity', 0)
+                        .text(t => t)
+                    enterSel.transition().duration(500).style('opacity', 1)
+                    return enterSel
+                },
+                update => {
+                    update.text(t => t)
+                    update.transition().duration(500).attr('x', (t, i) => band(i) + band.bandwidth() / 2)
+                    return update
+                },
+                exit => {
+                    exit.transition().duration(500).style('opacity', 0).remove()
+                    return exit
+                }
+            )
+
+            // Highlight the matching bar in the bar chart (dim others)
+            console.log("Trying to highlight bar for:", d.ticker)
+            d3.select("svg.market-cap")
+                .selectAll("rect.bars")
+                .transition()
+                .duration(500)
+                .style("fill", (barData) => barData.ticker === d.ticker ? sectorColors[d.sector] : "#cccccc")
+                .style("opacity", (barData) => barData.ticker === d.ticker ? 1 : 0.4)
+                .attr("stroke", (barData) => barData.ticker === d.ticker ? sectorColors[d.sector] : "none")
+                .attr("stroke-width", (barData) => barData.ticker === d.ticker ? 2 : 0)
+            
+            
+        })
+        .on("mouseleave", function(event) {
+            const d = d3.select(this).datum()
+            console.log("Left:", d.ticker)
+            // Fade out legend content on mouse leave
+            legendSvg.selectAll("text.legend-item")
+                .transition()
+                .duration(300)
+                .style("opacity", 0)
+                .remove()
+            
+            // Reset all bars to original color/opacity
+            d3.select("svg.market-cap")
+                .selectAll("rect.bars")
+                .transition()
+                .duration(250)
+                .style("fill", (barData) => sectorColors[barData.sector])
+                .style("opacity", 1)
+                .attr("stroke", "none")
+                .attr("stroke-width", 0)
+        })
 }
 
 // Bar Chart for Market Cap Visualization
 const marketCapSvg = d3.select("svg.market-cap")
     .attr("viewBox", "0 0 960 200")
+    .attr("width", 960)
+    .attr("height", 200)
 
 var minRange = 0 //defines start range for scaling
 var maxRange = 112 //defines end range for scaling
@@ -260,44 +292,44 @@ const barScale = d3.scaleLinear()
     .domain([0, 6000000000000])
     .range([minRange, maxRange])
 
-const marketCapFormat = d3.format(".2s")
-
 const marketCapGroups = marketCapSvg
     .selectAll("g")
-    .data(stock_data.sort((a, b) => b.market_cap - a.market_cap))
-    .enter().append("g")
+    .data(stock_data.sort((a, b) => a.market_cap - b.market_cap))
+    .enter()
+    .append("g")
     .attr("transform", (d, i) => {return "translate(" + (i*36) +", 0)"})
 
 marketCapGroups
     .append("rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", 24)
-    .attr("height", textLabel)
-    .attr("class", "transparent")
-
-marketCapGroups
-    .append("rect")
-    .attr("x", 0)
+    .attr("class", "bars")
+    .attr("x", 120)
     .attr("y", (d, i) => {return textStart})
     .attr("width", 24)
-    .attr("height", 0).transition().duration(500).delay((d,i) => {return i * 20}).ease(d3.easeCubicOut)
+    .attr("height", 0)
+    .style("fill", (d) => sectorColors[d.sector])
+    .style("opacity", 1)
+    .transition().duration(500).delay((d,i) => {return i * 24}).ease(d3.easeCubicOut)
     .attr("y", (d, i) => {return textStart-barScale(d.market_cap)})
     .attr("height", (d, i) => {return barScale(d.market_cap)})
+    
 
-// marketCapGroups
-//     .append("text")
-//     .attr("x", 12)
-//     .attr("y", textLabel)
-//     .attr("class", "labels")
-//     .text((d,i) => {return marketCapFormat(d.ticker)})
+marketCapGroups
+    .append("text")
+    .attr("x", 132)
+    .attr("y", (d,i) => {return textMarketCap-barScale(d.market_cap) - 25})
+    .attr("class", "marketcap")
+    .attr("text-anchor", "end")
+    .text((d, i) => {return `${d.market_cap/1000000000000}`.slice(0, 4) + "T"})
+    .attr("transform", (d, i) => { return `rotate(-90, 132, ${textMarketCap-barScale(d.market_cap) - 30})`})
 
-// marketCapGroups
-//     .append("text")
-//     .attr("x", 12)
-//     .attr("y", (d,i) => {return textMarketCap-barScale(d.market_cap)})
-//     .attr("class", "marketcap")
-//     .text((d,i) => {return d.market_cap})
+marketCapGroups
+    .append("text")
+    .attr("x", 132)
+    .attr("y", textLabel)
+    .attr("class", "labels")
+    .text((d,i) => {return d.ticker})
+    .attr("transform", "translate(-12,320) rotate(-90)")
+
 
 //on page load
 stockData()
@@ -311,54 +343,3 @@ selectTags.forEach(selectTag => {
     });
 })
 
-
-// const todaySvg = d3.select("svg.today")
-
-// var minRange = 1 //defines start range for scaling
-// var maxRange = 112 //defines end range for scaling
-// var textStart = 130 //defines y position for bars
-// var textHour = textStart+20 //hour label positioning
-// var textSteps = textStart-10 //data labels positioning
-
-// const barScale = d3.scaleLinear()
-//     .domain([0, 2000])
-//     .range([minRange, maxRange])
-
-// const hourFormat = d3.format("02d")
-
-// const todayGroups = todaySvg
-//     .selectAll("g")
-//     .data(todayData)
-//     .enter().append("g")
-//     .attr("transform", (d, i) => {return "translate(" + (i*36) +", 0)"})
-
-// todayGroups
-//     .append("rect")
-//     .attr("x", 0)
-//     .attr("y", 0)
-//     .attr("width", 24)
-//     .attr("height", textHour)
-//     .attr("class", "transparent")
-
-// todayGroups
-//     .append("rect")
-//     .attr("x", 0)
-//     .attr("y", (d, i) => {return textStart})
-//     .attr("width", 24)
-//     .attr("height", 0).transition().duration(500).delay((d,i) => {return i * 20}).ease(d3.easeCubicOut)
-//     .attr("y", (d, i) => {return textStart-barScale(d)})
-//     .attr("height", (d, i) => {return barScale(d)})
-
-// todayGroups
-//     .append("text")
-//     .attr("x", 12)
-//     .attr("y", textHour)
-//     .attr("class", "hours")
-//     .text((d,i) => {return hourFormat(i)})
-
-// todayGroups
-//     .append("text")
-//     .attr("x", 12)
-//     .attr("y", (d,i) => {return textSteps-barScale(d)})
-//     .attr("class", "steps")
-//     .text((d,i) => {return d})
