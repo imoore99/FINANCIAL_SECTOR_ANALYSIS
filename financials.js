@@ -224,6 +224,7 @@ const stockData = function() {
                         .attr('text-anchor', 'middle')
                         .attr('font-weight', 'bold')
                         .attr('font-size', '14px')
+                        .attr('fill', 'var(--primary-color)')
                         .attr('x', (t, i) => band(i) + band.bandwidth() / 2)
                         .style('opacity', 0)
                         .text(t => t)
@@ -342,4 +343,5 @@ selectTags.forEach(selectTag => {
         console.log("Selection changed, data updated.")
     });
 })
+
 

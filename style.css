@@ -96,7 +96,6 @@ text.marketcap {
     font-weight: bold;
 }
 
-
 /* circle / Hover effects */
 circle {
     fill: var(--stroke);
