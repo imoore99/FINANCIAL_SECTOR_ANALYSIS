@@ -1,0 +1,234 @@
+import pandas as pd
+import yfinance as yf
+import boto3
+import json
+import logging
+
+pd.set_option('display.float_format', '{:.2f}'.format)
+
+# Configure the 'yfinance' logger to suppress output
+logger = logging.getLogger('yfinance')
+logger.disabled = True
+# Optional: prevent propagation to the root logger as well
+logger.propagate = False 
+
+def process_tickers(url):
+    df = pd.read_csv(url)
+    tickers = df['Symbol'].tolist()
+    return tickers
+
+def top_20_market_cap(tickers):
+    # Batch download 1-day price data for all tickers - MUCH more efficient
+    print("Downloading price data for all tickers...")
+    price_data = yf.download(tickers, period='1d', progress=False, group_by='ticker')
+    
+    market_cap_list = []
+    ticker_list = []
+    
+    for i in tickers:
+        try:
+            # Get the latest close price from the batch download
+            if len(tickers) == 1:
+                close_price = price_data['Close'].iloc[-1]
+            else:
+                close_price = price_data[i]['Close'].iloc[-1]
+            
+            # Only make individual API call to get shares outstanding
+            ticker = yf.Ticker(i)
+            shares = ticker.info.get('sharesOutstanding')
+            
+            if shares and close_price:
+                market_cap = close_price * shares
+                market_cap_list.append(market_cap)
+                ticker_list.append(i)
+        except:
+            pass
+        
+    df = pd.DataFrame(data={'ticker': ticker_list, 'marketCap':market_cap_list}).sort_values(by='marketCap', ascending=False).reset_index(drop=True)
+
+    top_20_market_cap = df[df['ticker'] != 'GOOG'][:20].reset_index(drop=True)
+
+    return top_20_market_cap
+
+def json_data(df):
+    # Batch download 1-year price history for top 20 tickers only
+    print("Downloading 1-year history for top 20 tickers...")
+    top_tickers = df['ticker'].tolist()
+    history_data = yf.download(top_tickers, period='1y', progress=False, group_by='ticker')
+    
+    json_output = []
+
+    for index, row in df.iterrows():
+        ticker = yf.Ticker(row.ticker)
+
+        # Get history from the batch download instead of individual API call
+        if len(top_tickers) == 1:
+            history = history_data
+        else:
+            history = history_data[row.ticker]
+
+        history = ticker.history(period='1y')
+
+        # Calculate returns - 1 year and 6 months
+        # Use more lenient thresholds - yfinance doesn't always return exactly 252 days
+        if len(history) >= 200:  # At least ~8 months of data for "1 year" return
+            one_year_return = float(((history['Close'].iloc[-1] / history['Close'].iloc[0]) - 1) * 100)
+        else:
+            one_year_return = None
+                
+        if len(history) >= 100:  # At least ~4 months of data for "6 month" return
+            # Use the midpoint or as far back as we can go
+            lookback_index = min(126, len(history) - 1)
+            six_month_return = float(((history['Close'].iloc[-1] / history['Close'].iloc[-lookback_index]) - 1) * 100)
+        else:
+            six_month_return = None
+
+        # Calculate Interest Coverage Ratio
+        income_statement = ticker.income_stmt
+        if 'EBIT' in income_statement.index and 'Interest Expense' in income_statement.index:
+            ebit = income_statement.loc['EBIT'].iloc[0]
+            interest_expense = abs(income_statement.loc['Interest Expense'].iloc[0])  # Usually negative
+            
+            if interest_expense > 0:
+                    interest_coverage = float(ebit / interest_expense)
+            else:
+                interest_coverage = None
+        else:
+                interest_coverage = None
+
+        structure =  {
+            #core information
+            'ticker': row.ticker,
+            'sector': ticker.info.get('sector'),
+            'company_name': ticker.info.get('longName', ticker),
+            'industry': ticker.info.get('industry'),
+
+            #market cap
+            'market_cap': row.marketCap,
+
+            # Valuation
+            'pe_ratio': ticker.info.get('trailingPE'),
+            'forward_pe_ratio':ticker.info.get('forwardPE'),
+            'pb_ratio':ticker.info.get('priceToBook'),
+            'ps_ratio': ticker.info.get('priceToSalesTrailing12Months'),
+            'ev_to_revenue': ticker.info.get('enterpriseToRevenue'),
+            'ev_to_ebitda': ticker.info.get('enterpriseToEbitda'),
+
+            #Growth
+            'rev_growth': ticker.info.get('revenueGrowth', 0) * 100 if ticker.info.get('revenueGrowth') else None,  # Convert to %
+            'earnings_growth': ticker.info.get('earningsGrowth', 0) * 100 if ticker.info.get('earningsGrowth') else None,
+
+            # Profitability
+            'roe': ticker.info.get('returnOnEquity', 0) * 100 if ticker.info.get('returnOnEquity') else None,
+            'roa': ticker.info.get('returnOnAssets', 0) * 100 if ticker.info.get('returnOnAssets') else None,
+            'operating_margin': ticker.info.get('operatingMargins', 0) * 100 if ticker.info.get('operatingMargins') else None,
+            'net_margin': ticker. info.get('profitMargins', 0) * 100 if ticker.info.get('profitMargins') else None,
+            'profit_margin': ticker.info.get('profitMargins', 0) * 100 if ticker.info.get('profitMargins') else None,
+                    
+            # Risk
+            'beta':ticker.info.get('beta'),
+                    
+            # Returns (calculated)
+            'one_year_return': one_year_return,
+            'six_month_return': six_month_return,
+                    
+            # Leverage
+            'debt_to_equity': ticker.info.get('debtToEquity'),
+            'total_debt': ticker.info.get('totalDebt'),
+            'total_cash': ticker.info.get('totalCash'),
+
+            # Coverage
+            'interest_coverage': interest_coverage,
+                    
+            # Other
+            'avg_vol': ticker.info.get('averageVolume')
+        }
+        json_output.append(structure)
+
+    return json_output
+
+def json_constructor(url, bucket_name=None, object_key='assets/stock_data.js'):
+    """
+    Construct stock data and optionally upload to S3 as a JS file.
+
+    Args:
+        url: URL to S&P 500 constituents CSV
+        bucket_name: S3 bucket name (if None, returns data without uploading)
+        object_key: S3 object key (default: 'assets/stock_data.js')
+
+    Returns:
+        List of dictionaries containing stock data
+    """
+    # Scrape S&P 500 ticker list
+    tickers = process_tickers(url)
+    # Baseline df for additional columns
+    top_20_market_cap_df = top_20_market_cap(tickers)
+    # Construct json format
+    json_data_output = json_data(top_20_market_cap_df)
+
+    # Upload to S3 if bucket_name is provided
+    if bucket_name:
+        upload_to_s3(json_data_output, bucket_name, object_key)
+
+    return json_data_output
+
+
+def format_as_js(data, variable_name='stock_data'):
+    """
+    Format data as JavaScript variable assignment.
+
+    Args:
+        data: List of dictionaries to convert
+        variable_name: Name of the JS variable
+
+    Returns:
+        String formatted as JS file content
+    """
+    json_str = json.dumps(data, indent=1)
+    return f"let {variable_name} = {json_str};"
+
+
+def upload_to_s3(data, bucket_name, object_key, variable_name='stock_data'):
+    """
+    Upload stock data to S3 bucket as a JS file.
+
+    Args:
+        data: List of dictionaries containing stock data
+        bucket_name: Name of the S3 bucket
+        object_key: S3 object key (path/filename)
+        variable_name: JS variable name in the output file
+
+    Returns:
+        dict: S3 upload response
+    """
+    s3_client = boto3.client('s3')
+
+    # Format as JavaScript file content
+    js_content = format_as_js(data, variable_name)
+
+    response = s3_client.put_object(
+        Bucket=bucket_name,
+        Key=object_key,
+        Body=js_content.encode('utf-8'),
+        ContentType='application/javascript'
+    )
+
+    print(f"Uploaded to s3://{bucket_name}/{object_key}")
+    return response
+
+
+# DataSets repo - updated regularly
+url = "https://raw.githubusercontent.com/datasets/s-and-p-500-companies/main/data/constituents.csv"
+
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Fetch stock data and upload to S3')
+    parser.add_argument('--bucket', help='S3 bucket name (optional)')
+    parser.add_argument('--key', default='assets/stock_data.js', help='S3 object key')
+
+    args = parser.parse_args()
+
+    stock_data = json_constructor(url, bucket_name=args.bucket, object_key=args.key)
+    print(f"Fetched data for {len(stock_data)} stocks")
