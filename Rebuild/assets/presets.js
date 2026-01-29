@@ -17,12 +17,12 @@ const metricPresets = [{
     x: {
       field: 'pe_ratio',
       label: 'P/E Ratio',
-      format: d => d ? d.toFixed(1) : 'N/A'
+      format: d => d.toFixed(1)
     },
     y: {
       field: 'rev_growth',
       label: 'Revenue Growth (%)',
-      format: d => d ? d.toFixed(1) + '%' : 'N/A'
+      format: d => d.toFixed(1) + '%'
     },
     r: {
       field: 'market_cap',
@@ -42,12 +42,12 @@ const metricPresets = [{
     x: {
       field: 'beta',
       label: 'Beta (Volatility)',
-      format: d => d ? d.toFixed(2) : 'N/A'
+      format: d => d.toFixed(2)
     },
     y: {
       field: 'one_year_return',
       label: '1-Year Return (%)',
-      format: d => d ? d.toFixed(1) + '%' : 'N/A'
+      format: d => d.toFixed(1) + '%'
     },
     r: {
       field: 'market_cap',
@@ -67,12 +67,12 @@ const metricPresets = [{
     x: {
       field: 'roe',
       label: 'Return on Equity (%)',
-      format: d => d ? d.toFixed(1) + '%' : 'N/A'
+      format: d => d.toFixed(1) + '%'
     },
     y: {
       field: 'profit_margin',
       label: 'Net Margin (%)',
-      format: d => d ? d.toFixed(1) + '%' : 'N/A'
+      format: d => d.toFixed(1) + '%'
     },
     r: {
       field: 'market_cap',
@@ -92,12 +92,12 @@ const metricPresets = [{
     x: {
       field: 'pb_ratio',
       label: 'Price-to-Book Ratio',
-      format: d => d ? d.toFixed(1) : 'N/A'
+      format: d => d.toFixed(1)
     },
     y: {
       field: 'roe',
       label: 'Return on Equity (%)',
-      format: d => d ? d.toFixed(1) + '%' : 'N/A'
+      format: d => d.toFixed(1) + '%'
     },
     r: {
       field: 'market_cap',
@@ -117,12 +117,12 @@ const metricPresets = [{
     x: {
       field: 'ps_ratio',
       label: 'Price-to-Sales Ratio',
-      format: d => d ? d.toFixed(1) : 'N/A'
+      format: d => d.toFixed(1)
     },
     y: {
       field: 'rev_growth',
       label: 'Revenue Growth (%)',
-      format: d => d ? d.toFixed(1) + '%' : 'N/A'
+      format: d => d.toFixed(1) + '%'
     },
     r: {
       field: 'market_cap',
@@ -142,12 +142,12 @@ const metricPresets = [{
     x: {
       field: 'debt_to_equity',
       label: 'Debt-to-Equity Ratio',
-      format: d => d ? d.toFixed(2) : 'N/A'
+      format: d => d.toFixed(2)
     },
     y: {
       field: 'interest_coverage',
       label: 'Interest Coverage Ratio',
-      format: d => d ? d.toFixed(1) + 'x' : 'N/A'
+      format: d => d.toFixed(1) + 'x'
     },
     r: {
       field: 'market_cap',
@@ -167,12 +167,12 @@ const metricPresets = [{
     x: {
       field: 'pe_ratio',
       label: 'P/E Ratio',
-      format: d => d ? d.toFixed(1) : 'N/A'
+      format: d => d.toFixed(1)
     },
     y: {
       field: 'six_month_return',
       label: '6-Month Return (%)',
-      format: d => d ? d.toFixed(1) + '%' : 'N/A'
+      format: d => d.toFixed(1) + '%'
     },
     r: {
       field: 'market_cap',

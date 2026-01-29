@@ -16,21 +16,26 @@ body {
     font-family: 'work-sans-400', sans-serif;
     background-color: var(--background);
     color: var(--primary-color);
-    margin: 32px auto;
+    margin: 18px auto;
     max-width: 960px;
     text-align: center;
+
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    flex: 0 0 auto; /* Don't grow/shrink */
+    padding: 1rem;
 }
 
 h1 {
-    margin: 0 0 32px 0;
+    margin: 0;
 }
 
 img {
-    max-width:50%;
-}
-
-span {
-    margin: 0 8px;
+    max-width:30%;
 }
 
 .preset-selector {
@@ -39,7 +44,7 @@ span {
     background-color: var(--background);
     color: var(--primary-color);
     padding: 2px 4px;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     border: 3px solid var(--primary-color);
     border-radius: 0px;
@@ -48,20 +53,13 @@ span {
 }
 
 p.description {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
     color: var(--primary-color);
     max-width: 860px;
-    margin: 32px auto 12px auto;
+    margin: 18px auto 12px auto;
     line-height: 1.5;
     text-align: left;
-}
-
-svg.chart {
-    margin: -90px auto 0 auto;
-    width: 100%;
-    height: auto;
-    overflow: visible;
 }
 
 line {
@@ -114,13 +112,64 @@ g.stocks text.legend-ticker:hover {
     transition: font-weight ease-in-out 0.5s;
 }
 
-div.market-cap-legend {
+.chart-wrapper {
+    flex: 1;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
+    flex-direction: row;
+    gap: 2rem;
+    padding: 0 2rem 1rem; /* Reduce bottom padding */
+    min-height: 0;
+    overflow: hidden;
+    max-height: calc(100vh - 250px); /* Add this - adjust value as needed */
 }
+
+.bubble-section {
+    flex: 1; /* Takes available space */
+    min-height: 0;
+    min-width: 0;
+    max-width: 720px;;
+}
+
+.bar-section {
+    flex: 0 0 300px; /* Fixed 300px width on desktop */
+    min-height: 0;
+    max-width: 300px;
+}
+
+
+svg.chart {
+    /* margin: -100px auto 0 auto; */
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    max-height: 720px;
+    display: block;
+
+    border: 2px solid blue;
+}
+
+svg.market-cap {
+    border: 2px solid red;
+
+    width: 100%;
+    height: auto;
+    max-height: 720px; /* Match viewBox height */
+}
+
+footer {
+    flex: 0 0 auto; /* Don't grow/shrink, take natural height */
+    padding: 0;
+    margin-top: auto;
+    text-align: center;
+    font-size: 0.75rem;
+
+    border: 2px solid green;
+}
+
+body {
+    border: 2px solid yellow;
+}
+
 
 
 
@@ -138,5 +187,15 @@ div.market-cap-legend {
     }
     img {
         max-width: 70%;
+    }
+
+    .chart-wrapper {
+        flex-direction: column; /* Stacked */
+        padding: 1rem;
+    }
+    
+    .bar-section {
+        flex: 0 0 auto;
+        order: -1; /* Move to top */
     }
 }
