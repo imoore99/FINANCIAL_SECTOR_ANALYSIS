@@ -61,8 +61,6 @@
     // Parse and convert to local time
     const date = new Date(last_updated);
     const localTime = date.toLocaleString();
-
-    console.log(localTime);  // "1/23/2026, 1:22:00 PM" (if you're in PST)
     document.getElementById('lastUpdated').textContent = typeof localTime + " PST" !== 'undefined' ? localTime + " PST" : 'Unknown';
 </script>
 

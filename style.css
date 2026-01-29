@@ -181,21 +181,15 @@ footer p {
     p.description {
         margin: 0 20px;
         font-size: 10px;
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
     }
 
     .preset-selector {
         font-size: 10px;
-        padding: 1px 3px;
     }
-    
-    
     
     /* Footer hugs content */
     footer {
         margin-top: 0.5rem;
-        padding: 0.5rem 0;
     }
     
     footer p {
