@@ -11,7 +11,7 @@
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
-  }
+}
 
 body {
     font-family: 'work-sans-400', sans-serif;
@@ -25,7 +25,7 @@ body {
     display: flex;
     flex-direction: column;
 
-    
+
 }
 
 header {
@@ -58,7 +58,7 @@ h1 img {
     border: 3px solid var(--primary-color);
     border-radius: 0px;
     cursor: pointer;
-  
+
 }
 
 p.description {
@@ -73,23 +73,39 @@ p.description {
 
 /* Chart Layout */
 .chart-wrapper {
-    flex: 1; /* Takes remaining height */
-    display: flex;
-    flex-direction: row;
+    flex: 1;
+    /* Takes remaining height */
+    display: grid;
+    /* Use minmax to ensure responsive scaling but cap maximum width to bring them closer */
+    grid-template-columns: minmax(0, 85vh) 280px;
+    justify-content: center;
+    /* Pack to center */
     gap: 1.5rem;
     padding: 1rem;
-    min-height: 0; /* Important for flex children */
+    min-height: 0;
+    /* Important for flex children */
     /* overflow: hidden; */
 }
 
+/* Ensure children fit in grid cells */
+.bubble-section,
+.bar-legend-section {
+    min-width: 0;
+    min-height: 0;
+}
+
 .bubble-section {
-    flex: 3; /* Takes available space */
+    flex: 3;
+    /* Takes available space */
     min-height: 0;
     min-width: 0;
 
-    display: flex; /* Add this */
-    align-items: center; /* Add this */
-    justify-content: center; /* Add this */
+    display: flex;
+    /* Add this */
+    align-items: center;
+    /* Add this */
+    justify-content: center;
+    /* Add this */
 }
 
 line {
@@ -102,7 +118,8 @@ path {
     stroke-width: 3px;
 }
 
-text.x-axis, text.y-axis {
+text.x-axis,
+text.y-axis {
     font-size: 1.25rem;
     font-weight: bold;
     fill: var(--primary-color);
@@ -121,18 +138,20 @@ g.stocks circle:hover {
 }
 
 .bar-legend-section {
-    flex: 0 0 280px; /* Fixed width column */
+    /* Removed fixed flex width */
     display: flex;
     flex-direction: column;
     gap: 1rem;
     min-height: 0;
-    
+
 }
 
 .bar-section {
-    flex: 1.25; /* Takes most of the space */
+    flex: 1.25;
+    /* Takes most of the space */
     min-height: 0;
-    max-height: calc(100% - 120px); /* Adjust for legend height */
+    max-height: calc(100% - 120px);
+    /* Adjust for legend height */
 }
 
 /* SVG sizing */
@@ -164,20 +183,31 @@ footer p {
     }
 
     .bar-legend-section {
-        display: none !important; /* Force it */
+        display: none !important;
+        /* Force it */
+    }
+
+    /* Switch back to block layout for chart wrapper on small screens if needed, 
+       though the above hides the sidebar so grid is fine with 1 column effectively.
+       But let's be safe and stack them if we ever show content below. */
+    .chart-wrapper {
+        display: flex;
+        flex-direction: column;
     }
 }
 
 @media (max-width: 700px) {
+
     /* Tighter spacing */
     body {
-        height: auto; /* Remove 100vh constraint */
+        height: auto;
+        /* Remove 100vh constraint */
     }
-    
+
     header {
         padding: 0.5rem;
     }
-    
+
     p.description {
         margin: 0 20px;
         font-size: 10px;
@@ -186,12 +216,12 @@ footer p {
     .preset-selector {
         font-size: 10px;
     }
-    
+
     /* Footer hugs content */
     footer {
         margin-top: 0.5rem;
     }
-    
+
     footer p {
         font-size: 11px;
         padding: 0.5rem 0;
